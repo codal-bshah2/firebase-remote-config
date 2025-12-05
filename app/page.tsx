@@ -139,7 +139,7 @@ export default function FeatureFlagDemo() {
                       flags.darkMode ? "text-white" : "text-gray-900"
                     }`}
                   >
-                    animation
+                    Animation
                   </div>
                   <div
                     className={`text-sm ${
@@ -263,7 +263,7 @@ export default function FeatureFlagDemo() {
                 {flags.darkMode ? "Changes color scheme ✓" : "Not active"}
               </li>
               <li>
-                • animation:{" "}
+                • Animation:{" "}
                 {flags.animations ? "Adds pulsing effect ✓" : "Static display"}
               </li>
               <li>
