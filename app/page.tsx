@@ -1,65 +1,279 @@
-import Image from "next/image";
+"use client";
+import React, { useState, useEffect } from "react";
+import { Settings, Eye, Sparkles, Zap } from "lucide-react";
+import {
+  getAllFlags,
+  initFirebase,
+  subscribeToUpdates,
+} from "@/lib/firebase-client";
 
-export default function Home() {
+export default function FeatureFlagDemo() {
+  const [flags, setFlags] = useState({
+    darkMode: false,
+    animation: false,
+    premiumBadge: false,
+  });
+
+  useEffect(() => {
+    const rc = initFirebase();
+
+    getAllFlags(rc).then((flags) => {
+      console.log("flags", flags);
+      setFlags(flags);
+    });
+
+    subscribeToUpdates(rc, () => {
+      getAllFlags(rc).then(setFlags);
+    });
+  }, []);
+
+  async function updateFlag(key: string, value: boolean) {
+    await fetch("/api/update-flag", {
+      method: "POST",
+      body: JSON.stringify({ key, value }),
+      headers: { "Content-Type": "application/json" },
+    });
+
+    setFlags((prev) => ({ ...prev, [key]: value }));
+  }
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
+    <div
+      className={`min-h-screen ${
+        flags.darkMode ? "bg-gray-900" : "bg-gray-50"
+      } transition-colors duration-300`}
+    >
+      <div className="max-w-4xl mx-auto p-8">
+        <div className="mb-8">
+          <h1
+            className={`text-4xl font-bold mb-2 ${
+              flags.darkMode ? "text-white" : "text-gray-900"
+            }`}
+          >
+            Feature Flag Demo
           </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+          <p
+            className={`${flags.darkMode ? "text-gray-400" : "text-gray-600"}`}
+          >
+            Toggle features on and off to see them in action
           </p>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
+
+        <div
+          className={`${
+            flags.darkMode ? "bg-gray-800" : "bg-white"
+          } rounded-lg shadow-lg p-6 mb-8`}
+        >
+          <div className="flex items-center gap-2 mb-4">
+            <Settings
+              className={flags.darkMode ? "text-blue-400" : "text-blue-600"}
+              size={24}
             />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+            <h2
+              className={`text-2xl font-semibold ${
+                flags.darkMode ? "text-white" : "text-gray-900"
+              }`}
+            >
+              Feature Flags
+            </h2>
+          </div>
+
+          <div className="space-y-4">
+            <div
+              className="flex items-center justify-between p-4 rounded-lg border-2 border-dashed"
+              style={{ borderColor: flags.darkMode ? "#3b82f6" : "#e5e7eb" }}
+            >
+              <div className="flex items-center gap-3">
+                <Eye
+                  size={20}
+                  className={flags.darkMode ? "text-blue-400" : "text-gray-600"}
+                />
+                <div>
+                  <div
+                    className={`font-semibold ${
+                      flags.darkMode ? "text-white" : "text-gray-900"
+                    }`}
+                  >
+                    Dark Mode
+                  </div>
+                  <div
+                    className={`text-sm ${
+                      flags.darkMode ? "text-gray-400" : "text-gray-500"
+                    }`}
+                  >
+                    Status:
+                    <span
+                      className={`font-bold ${
+                        flags.darkMode ? "text-green-400" : "text-red-500"
+                      }`}
+                    >
+                      {flags.darkMode ? "ON" : "OFF"}
+                    </span>
+                  </div>
+                </div>
+              </div>
+              <button
+                onClick={() => updateFlag("darkMode", !flags.darkMode)}
+                className={`px-6 py-2 rounded-lg font-semibold transition-colors ${
+                  flags.darkMode
+                    ? "bg-green-500 text-white hover:bg-green-600"
+                    : "bg-gray-300 text-gray-700 hover:bg-gray-400"
+                }`}
+              >
+                {flags.darkMode ? "ENABLED" : "DISABLED"}
+              </button>
+            </div>
+
+            <div
+              className="flex items-center justify-between p-4 rounded-lg border-2 border-dashed"
+              style={{ borderColor: flags.animation ? "#3b82f6" : "#e5e7eb" }}
+            >
+              <div className="flex items-center gap-3">
+                <Sparkles
+                  size={20}
+                  className={flags.darkMode ? "text-blue-400" : "text-gray-600"}
+                />
+                <div>
+                  <div
+                    className={`font-semibold ${
+                      flags.darkMode ? "text-white" : "text-gray-900"
+                    }`}
+                  >
+                    animation
+                  </div>
+                  <div
+                    className={`text-sm ${
+                      flags.darkMode ? "text-gray-400" : "text-gray-500"
+                    }`}
+                  >
+                    Status:{" "}
+                    <span
+                      className={`font-bold ${
+                        flags.animation ? "text-green-400" : "text-red-500"
+                      }`}
+                    >
+                      {flags.animation ? "ON" : "OFF"}
+                    </span>
+                  </div>
+                </div>
+              </div>
+              <button
+                onClick={() => updateFlag("animation", !flags.animation)}
+                className={`px-6 py-2 rounded-lg font-semibold transition-colors ${
+                  flags.animation
+                    ? "bg-green-500 text-white hover:bg-green-600"
+                    : "bg-gray-300 text-gray-700 hover:bg-gray-400"
+                }`}
+              >
+                {flags.animation ? "ENABLED" : "DISABLED"}
+              </button>
+            </div>
+
+            {/* Premium Badge Toggle */}
+            <div
+              className="flex items-center justify-between p-4 rounded-lg border-2 border-dashed"
+              style={{
+                borderColor: flags.premiumBadge ? "#3b82f6" : "#e5e7eb",
+              }}
+            >
+              <div className="flex items-center gap-3">
+                <Zap
+                  size={20}
+                  className={flags.darkMode ? "text-blue-400" : "text-gray-600"}
+                />
+                <div>
+                  <div
+                    className={`font-semibold ${
+                      flags.darkMode ? "text-white" : "text-gray-900"
+                    }`}
+                  >
+                    Premium Badge
+                  </div>
+                  <div
+                    className={`text-sm ${
+                      flags.darkMode ? "text-gray-400" : "text-gray-500"
+                    }`}
+                  >
+                    Status:{" "}
+                    <span
+                      className={`font-bold ${
+                        flags.premiumBadge ? "text-green-400" : "text-red-500"
+                      }`}
+                    >
+                      {flags.premiumBadge ? "ON" : "OFF"}
+                    </span>
+                  </div>
+                </div>
+              </div>
+              <button
+                onClick={() => updateFlag("premiumBadge", !flags.premiumBadge)}
+                className={`px-6 py-2 rounded-lg font-semibold transition-colors ${
+                  flags.premiumBadge
+                    ? "bg-green-500 text-white hover:bg-green-600"
+                    : "bg-gray-300 text-gray-700 hover:bg-gray-400"
+                }`}
+              >
+                {flags.premiumBadge ? "ENABLED" : "DISABLED"}
+              </button>
+            </div>
+          </div>
         </div>
-      </main>
+
+        {/* Demo Content Area */}
+        <div
+          className={`${
+            flags.darkMode ? "bg-gray-800" : "bg-white"
+          } rounded-lg shadow-lg p-8`}
+        >
+          <div className="flex items-center gap-3 mb-6">
+            <h3
+              className={`text-2xl font-semibold ${
+                flags.darkMode ? "text-white" : "text-gray-900"
+              }`}
+            >
+              Welcome, User
+            </h3>
+            {flags.premiumBadge && (
+              <span className="bg-gradient-to-r from-yellow-400 to-orange-500 text-white px-3 py-1 rounded-full text-sm font-bold flex items-center gap-1">
+                <Zap size={14} fill="currentColor" />
+                PREMIUM
+              </span>
+            )}
+          </div>
+
+          <div
+            className={`${flags.animation ? "animate-pulse" : ""} ${
+              flags.darkMode ? "bg-gray-700" : "bg-gray-100"
+            } rounded-lg p-6`}
+          >
+            <p
+              className={`text-lg ${
+                flags.darkMode ? "text-gray-300" : "text-gray-700"
+              }`}
+            >
+              This is a demo content area showing how features change the UI.
+            </p>
+            <ul
+              className={`mt-4 space-y-2 ${
+                flags.darkMode ? "text-gray-400" : "text-gray-600"
+              }`}
+            >
+              <li>
+                • Dark Mode:{" "}
+                {flags.darkMode ? "Changes color scheme ✓" : "Not active"}
+              </li>
+              <li>
+                • animation:{" "}
+                {flags.animation ? "Adds pulsing effect ✓" : "Static display"}
+              </li>
+              <li>
+                • Premium Badge:{" "}
+                {flags.premiumBadge ? "Shows next to name ✓" : "Hidden"}
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
