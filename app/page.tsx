@@ -10,7 +10,7 @@ import {
 export default function FeatureFlagDemo() {
   const [flags, setFlags] = useState({
     darkMode: false,
-    animation: false,
+    animations: false,
     premiumBadge: false,
   });
 
@@ -126,7 +126,7 @@ export default function FeatureFlagDemo() {
 
             <div
               className="flex items-center justify-between p-4 rounded-lg border-2 border-dashed"
-              style={{ borderColor: flags.animation ? "#3b82f6" : "#e5e7eb" }}
+              style={{ borderColor: flags.animations ? "#3b82f6" : "#e5e7eb" }}
             >
               <div className="flex items-center gap-3">
                 <Sparkles
@@ -149,23 +149,23 @@ export default function FeatureFlagDemo() {
                     Status:{" "}
                     <span
                       className={`font-bold ${
-                        flags.animation ? "text-green-400" : "text-red-500"
+                        flags.animations ? "text-green-400" : "text-red-500"
                       }`}
                     >
-                      {flags.animation ? "ON" : "OFF"}
+                      {flags.animations ? "ON" : "OFF"}
                     </span>
                   </div>
                 </div>
               </div>
               <button
-                onClick={() => updateFlag("animation", !flags.animation)}
+                onClick={() => updateFlag("animations", !flags.animations)}
                 className={`px-6 py-2 rounded-lg font-semibold transition-colors ${
-                  flags.animation
+                  flags.animations
                     ? "bg-green-500 text-white hover:bg-green-600"
                     : "bg-gray-300 text-gray-700 hover:bg-gray-400"
                 }`}
               >
-                {flags.animation ? "ENABLED" : "DISABLED"}
+                {flags.animations ? "ENABLED" : "DISABLED"}
               </button>
             </div>
 
@@ -242,7 +242,7 @@ export default function FeatureFlagDemo() {
           </div>
 
           <div
-            className={`${flags.animation ? "animate-pulse" : ""} ${
+            className={`${flags.animations ? "animate-pulse" : ""} ${
               flags.darkMode ? "bg-gray-700" : "bg-gray-100"
             } rounded-lg p-6`}
           >
@@ -264,7 +264,7 @@ export default function FeatureFlagDemo() {
               </li>
               <li>
                 • animation:{" "}
-                {flags.animation ? "Adds pulsing effect ✓" : "Static display"}
+                {flags.animations ? "Adds pulsing effect ✓" : "Static display"}
               </li>
               <li>
                 • Premium Badge:{" "}

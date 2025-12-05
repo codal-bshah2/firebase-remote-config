@@ -35,7 +35,7 @@ export async function getAllFlags(rc: ReturnType<typeof initFirebase>) {
 
   return {
     darkMode: getValue(rc, "darkMode").asBoolean(),
-    animation: getValue(rc, "animations").asBoolean(),
+    animations: getValue(rc, "animations").asBoolean(),
     premiumBadge: getValue(rc, "premiumBadge").asBoolean(),
   };
 }
