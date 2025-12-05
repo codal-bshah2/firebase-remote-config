@@ -13,6 +13,7 @@ export default function FeatureFlagDemo() {
     animations: false,
     premiumBadge: false,
   });
+  const [loading, setIsLoading] = useState(false);
 
   useEffect(() => {
     const rc = initFirebase();
@@ -28,11 +29,13 @@ export default function FeatureFlagDemo() {
   }, []);
 
   async function updateFlag(key: string, value: boolean) {
+    setIsLoading(true);
     await fetch("/api/update-flag", {
       method: "POST",
       body: JSON.stringify({ key, value }),
       headers: { "Content-Type": "application/json" },
     });
+    setIsLoading(false);
 
     setFlags((prev) => ({ ...prev, [key]: value }));
   }
@@ -114,11 +117,12 @@ export default function FeatureFlagDemo() {
               </div>
               <button
                 onClick={() => updateFlag("darkMode", !flags.darkMode)}
+                disabled={loading}
                 className={`px-6 py-2 rounded-lg font-semibold transition-colors ${
                   flags.darkMode
                     ? "bg-green-500 text-white hover:bg-green-600"
                     : "bg-gray-300 text-gray-700 hover:bg-gray-400"
-                }`}
+                } disabled:opacity-70`}
               >
                 {flags.darkMode ? "ENABLED" : "DISABLED"}
               </button>
@@ -159,11 +163,12 @@ export default function FeatureFlagDemo() {
               </div>
               <button
                 onClick={() => updateFlag("animations", !flags.animations)}
+                disabled={loading}
                 className={`px-6 py-2 rounded-lg font-semibold transition-colors ${
                   flags.animations
                     ? "bg-green-500 text-white hover:bg-green-600"
                     : "bg-gray-300 text-gray-700 hover:bg-gray-400"
-                }`}
+                } disabled:opacity-70`}
               >
                 {flags.animations ? "ENABLED" : "DISABLED"}
               </button>
@@ -207,11 +212,12 @@ export default function FeatureFlagDemo() {
               </div>
               <button
                 onClick={() => updateFlag("premiumBadge", !flags.premiumBadge)}
+                disabled={loading}
                 className={`px-6 py-2 rounded-lg font-semibold transition-colors ${
                   flags.premiumBadge
                     ? "bg-green-500 text-white hover:bg-green-600"
                     : "bg-gray-300 text-gray-700 hover:bg-gray-400"
-                }`}
+                } disabled:opacity-70`}
               >
                 {flags.premiumBadge ? "ENABLED" : "DISABLED"}
               </button>
